@@ -24,13 +24,14 @@ namespace GestionExpedientes.Models // Define el espacio de nombres para la apli
         public decimal NotaFinal { get; set; } // Nota final del expediente
 
         [StringLength(500)]
-        public string Observaciones { get; set; } // Observaciones adicionales
+        public string? Observaciones { get; set; } // Observaciones adicionales (opcional)
 
         // Propiedades de navegación
+        // Propiedades de navegación
         [ForeignKey("AlumnoId")]
-        public Alumno Alumno { get; set; }
+        public Alumno? Alumno { get; set; }
 
         [ForeignKey("MateriaId")]
-        public Materia Materia { get; set; }
+        public Materia? Materia { get; set; }
     }
 }

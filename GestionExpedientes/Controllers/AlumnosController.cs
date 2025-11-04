@@ -34,7 +34,10 @@ namespace GestionExpedientes.Controllers
             }
 
             var alumno = await _context.Alumnos
+                .Include(a => a.Expedientes)           // Incluir los expedientes
+                    .ThenInclude(e => e.Materia)       // Y las materias de cada expediente
                 .FirstOrDefaultAsync(m => m.AlumnoId == id);
+
             if (alumno == null)
             {
                 return NotFound();

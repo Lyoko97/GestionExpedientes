@@ -180,5 +180,27 @@ namespace GestionExpedientes.Controllers
         {
             return _context.Expedientes.Any(e => e.ExpedienteId == id);
         }
+
+        // GET: Expedientes/Promedios
+        public async Task<IActionResult> Promedios() // Acción para mostrar el promedio de notas por alumno
+        {
+            // Consulta para obtener el promedio de notas por alumno
+            var promedios = await _context.Expedientes
+                .Include(e => e.Alumno) // Incluir la relación con Alumno
+                .GroupBy(e => new { e.AlumnoId, e.Alumno.Nombre, e.Alumno.Apellido }) // Agrupar por AlumnoId, Nombre y Apellido
+                .Select(g => new // Proyección a un objeto anónimo
+                {
+                    AlumnoId = g.Key.AlumnoId,
+                    NombreCompleto = g.Key.Nombre + " " + g.Key.Apellido,
+                    Promedio = g.Average(e => e.NotaFinal),
+                    CantidadMaterias = g.Count(),
+                    NotaMaxima = g.Max(e => e.NotaFinal),
+                    NotaMinima = g.Min(e => e.NotaFinal)
+                })
+                .OrderByDescending(p => p.Promedio)
+                .ToListAsync();
+
+            return View(promedios);
+        }
     }
 }

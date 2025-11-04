@@ -25,6 +25,6 @@ namespace GestionExpedientes.Models // Define el espacio de nombres para la apli
         public string Grado { get; set; }
 
         // Relación con Expediente (un alumno tiene muchos expedientes)
-        public ICollection<Expediente> Expedientes { get; set; } // Colección de expedientes asociados al alumno
+        public ICollection<Expediente> Expedientes { get; set; } = new List<Expediente>(); // Colección de expedientes asociados al alumno
     }
 }
