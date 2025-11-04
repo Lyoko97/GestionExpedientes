@@ -1,0 +1,37 @@
+﻿@model GestionExpedientes.Models.Expediente
+
+@{
+    ViewData["Title"] = "Detalles del Expediente";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h4>Información del Expediente</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Alumno</dt>
+            <dd class="col-sm-9">@Model.Alumno.Nombre @Model.Alumno.Apellido</dd>
+
+            <dt class="col-sm-3">Materia</dt>
+            <dd class="col-sm-9">@Model.Materia.NombreMateria</dd>
+
+            <dt class="col-sm-3">Docente</dt>
+            <dd class="col-sm-9">@Model.Materia.Docente</dd>
+
+            <dt class="col-sm-3">Nota Final</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-primary fs-5">@Model.NotaFinal</span>
+            </dd>
+
+            <dt class="col-sm-3">Observaciones</dt>
+            <dd class="col-sm-9">@Model.Observaciones</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.ExpedienteId" class="btn btn-warning">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    </div>
+</div>
