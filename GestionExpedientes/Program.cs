@@ -1,9 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore; // Importa el paquete Entity Framework Core para trabajar con bases de datos
+using GestionExpedientes.Data; // Importa el espacio de nombres donde se encuentra ApplicationDbContext
+
+var builder = WebApplication.CreateBuilder(args); // Crea el constructor de la aplicación web
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+// Configurar Entity Framework con SQL Server
+builder.Services.AddDbContext<ApplicationDbContext>(options => // Agrega el contexto de la base de datos al contenedor de servicios
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Configura la cadena de conexión a SQL Server desde appsettings.json
+
+var app = builder.Build(); // Construye la aplicación web
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
