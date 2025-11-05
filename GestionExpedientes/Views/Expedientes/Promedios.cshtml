@@ -128,7 +128,7 @@ else
     <!-- Gráfica simple con barras CSS -->
     <div class="card mt-4">
         <div class="card-header bg-dark text-white">
-            <h4>📊 Visualización de Promedios</h4>
+            <h4> Visualización de Promedios</h4>
         </div>
         <div class="card-body">
             @foreach (var item in Model)
@@ -153,6 +153,202 @@ else
     </div>
 }
 
+<!-- Sección de Gráficas Estadísticas -->
+<div class="row mt-4">
+    <!-- Gráfica 1: Barras - Promedio por Alumno -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5> Promedio por Alumno</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartPromedios"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfica 2: Dona - Distribución de Rendimiento -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5> Distribución de Rendimiento</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartDistribucion"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfica 3: Comparativa de Notas Máximas y Mínimas -->
+<div class="card mt-4 mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5> Comparativa: Notas Máximas vs Mínimas por Alumno</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="chartComparativa"></canvas>
+    </div>
+</div>
+
 <div class="mt-3">
     <a asp-action="Index" class="btn btn-secondary">Volver a Expedientes</a>
 </div>
+
+@section Scripts {
+    <!-- Librería Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        // Preparar datos desde el modelo
+        var alumnos = [@Html.Raw(string.Join(",", Model.Select(m => $"\"{m.NombreCompleto}\"")))];
+        var promedios = [@Html.Raw(string.Join(",", Model.Select(m => m.Promedio)))];
+        var notasMaximas = [@Html.Raw(string.Join(",", Model.Select(m => m.NotaMaxima)))];
+        var notasMinimas = [@Html.Raw(string.Join(",", Model.Select(m => m.NotaMinima)))];
+
+        // Colores dinámicos basados en el promedio
+        var coloresBarra = promedios.map(function(promedio) {
+            if (promedio >= 9) return 'rgba(40, 167, 69, 0.8)';      // Verde - Excelente
+            else if (promedio >= 7) return 'rgba(0, 123, 255, 0.8)'; // Azul - Bueno
+            else if (promedio >= 6) return 'rgba(255, 193, 7, 0.8)'; // Amarillo - Regular
+            else return 'rgba(220, 53, 69, 0.8)';                     // Rojo - Necesita mejorar
+        });
+
+        // GRÁFICA 1: Barras - Promedio por Alumno
+        var ctx1 = document.getElementById('chartPromedios').getContext('2d');
+        var chartPromedios = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: alumnos,
+                datasets: [{
+                    label: 'Promedio',
+                    data: promedios,
+                    backgroundColor: coloresBarra,
+                    borderColor: coloresBarra.map(color => color.replace('0.8', '1')),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Calificaciones por Alumno'
+                    }
+                }
+            }
+        });
+
+        // GRÁFICA 2: Dona - Distribución de Rendimiento
+        var excelentes = promedios.filter(p => p >= 9).length;
+        var buenos = promedios.filter(p => p >= 7 && p < 9).length;
+        var regulares = promedios.filter(p => p >= 6 && p < 7).length;
+        var necesitaMejorar = promedios.filter(p => p < 6).length;
+
+        var ctx2 = document.getElementById('chartDistribucion').getContext('2d');
+        var chartDistribucion = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Excelente (9-10)', 'Bueno (7-8.9)', 'Regular (6-6.9)', 'Necesita Mejorar (<6)'],
+                datasets: [{
+                    data: [excelentes, buenos, regulares, necesitaMejorar],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',   // Verde
+                        'rgba(0, 123, 255, 0.8)',   // Azul
+                        'rgba(255, 193, 7, 0.8)',   // Amarillo
+                        'rgba(220, 53, 69, 0.8)'    // Rojo
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(0, 123, 255, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Clasificación del Rendimiento Académico'
+                    }
+                }
+            }
+        });
+
+        // GRÁFICA 3: Líneas - Comparativa Máximas vs Mínimas
+        var ctx3 = document.getElementById('chartComparativa').getContext('2d');
+        var chartComparativa = new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: alumnos,
+                datasets: [
+                    {
+                        label: 'Nota Máxima',
+                        data: notasMaximas,
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Promedio',
+                        data: promedios,
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Nota Mínima',
+                        data: notasMinimas,
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Rango de Notas por Estudiante'
+                    }
+                }
+            }
+        });
+    </script>
+}
