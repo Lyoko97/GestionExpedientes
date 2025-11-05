@@ -121,7 +121,7 @@ La base de datos se crea vacía. Para utilizar todas las funcionalidades del sis
 4. **Ver Estadísticas:**
    - Ir a **Promedios** para ver gráficas y análisis
 
-## 📊 Estructura de la Base de Datos
+## Estructura de la Base de Datos
 
 El sistema implementa una relación **muchos a muchos** entre Alumnos y Materias mediante la tabla intermedia Expedientes:
 ```
